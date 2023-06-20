@@ -24,7 +24,7 @@ export function getBasePath() {
         }
     }
     const bases = window.document?.head?.getElementsByTagName('base');
-    if (bases.length === 0) {
+    if (!bases || bases.length === 0) {
         return '/';
     }
     return bases[0].getAttribute('href') || '/';
