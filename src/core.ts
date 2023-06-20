@@ -1,5 +1,6 @@
 export const EVENT_HISTORY_STATE_CHANGED = 'history-state-changed';
 
+
 function getBasePathForFrame(frame: Element) {
     const basePath = frame.getAttribute('data-base-path');
     if (basePath) {
@@ -63,14 +64,11 @@ export function getPathInParent() {
 /**
  * Replaces the history state of the iframe and emits and event on its window.
  */
-export function replaceFrameHistoryState(iframe: HTMLIFrameElement, path: string) {
-    if (!iframe.contentWindow) {
-        return false;
-    }
+export function replaceStateOnWindow(win: Window, path: string) {
 
     try {
-        iframe.contentWindow.history.replaceState({}, '', path);
-        iframe.contentWindow.dispatchEvent(new CustomEvent(EVENT_HISTORY_STATE_CHANGED));
+        win.history.replaceState({}, '', path);
+        win.dispatchEvent(new CustomEvent(EVENT_HISTORY_STATE_CHANGED));
     } catch (e) {
         //ignore
         return false;
@@ -105,25 +103,32 @@ function getFragmentFrame() {
 }
 
 /**
- * This should be invoked whenever the current frame has navigated itself.
- *
- * Also goes for the top level window.
+ * Syncs the location of the current frame with the child frame - if any.
  */
-export function onSelfNavigation() {
+function syncLocationToChildFrames() {
     const fullPath = getFullPath();
     const fragment = getFragmentFrame();
-    if (fragment) {
+    if (fragment && fragment.contentWindow) {
         const parentPath = getPathInParentForFrame(fragment);
         const basePath = getBasePathForFrame(fragment);
         if (fullPath.startsWith(parentPath)) {
             const localPath = removePathPrefix(fullPath, parentPath);
-            replaceFrameHistoryState(fragment, joinPaths(basePath, localPath));
+            replaceStateOnWindow(fragment.contentWindow, joinPaths(basePath, localPath));
         }
     }
+}
 
+/**
+ * Syncs the location of the current frame with the parent frame.
+ */
+
+function syncLocationToParent() {
     if (window === window.parent) {
+        // We are the top level window - no parent to sync to
         return;
     }
+
+    const fullPath = getFullPath();
     const basePath = getBasePath();
     const topPath = getPathInParent();
 
@@ -131,8 +136,18 @@ export function onSelfNavigation() {
     const topLocalPath = joinPaths(topPath, localPath);
     const parentFullPath = getFullPath(window.parent);
     if (parentFullPath !== topLocalPath) {
-        window.parent.history.replaceState({}, '', topLocalPath);
+        replaceStateOnWindow(window.parent, topLocalPath);
     }
+}
+
+/**
+ * This should be invoked whenever the current frame has navigated itself.
+ *
+ * Also goes for the top level window.
+ */
+export function onSelfNavigation() {
+    syncLocationToChildFrames();
+    syncLocationToParent();
 }
 
 /**
