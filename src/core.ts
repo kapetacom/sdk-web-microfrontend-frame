@@ -67,8 +67,13 @@ export function getPathInParent() {
 export function replaceStateOnWindow(win: Window, path: string) {
 
     try {
-        win.history.replaceState({}, '', path);
-        win.dispatchEvent(new CustomEvent(EVENT_HISTORY_STATE_CHANGED));
+        const currentPath = getFullPath(win);
+        if (!isSamePath(currentPath, path)) {
+            console.log('Replacing state on window: %s > %s', currentPath, path);
+            // Only replace if the path has changed
+            win.history.replaceState({}, '', path);
+            win.dispatchEvent(new CustomEvent(EVENT_HISTORY_STATE_CHANGED));
+        }
     } catch (e) {
         //ignore
         return false;
@@ -122,6 +127,17 @@ function syncLocationToChildFrames() {
  * Syncs the location of the current frame with the parent frame.
  */
 
+function normalizePath(path: string) {
+    if (path.endsWith('/')) {
+        return path.substring(0, path.length - 1);
+    }
+    return path;
+}
+
+function isSamePath(path1: string, path2: string) {
+    return normalizePath(path1) === normalizePath(path2);
+}
+
 function syncLocationToParent() {
     if (window === window.parent) {
         // We are the top level window - no parent to sync to
@@ -135,7 +151,7 @@ function syncLocationToParent() {
     const localPath = removePathPrefix(fullPath, basePath);
     const topLocalPath = joinPaths(topPath, localPath);
     const parentFullPath = getFullPath(window.parent);
-    if (parentFullPath !== topLocalPath) {
+    if (!isSamePath(parentFullPath, topLocalPath)) {
         replaceStateOnWindow(window.parent, topLocalPath);
     }
 }
@@ -193,6 +209,10 @@ export function getFullPath(win?: Window) {
  * Gets everything after host and port.
  */
 export function toFullPath(urlString: string) {
+    if (urlString.startsWith('about:')) {
+        return '';
+    }
+
     if (urlString.startsWith('/')) {
         return urlString;
     }
