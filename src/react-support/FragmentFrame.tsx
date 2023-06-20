@@ -1,5 +1,5 @@
 import React from 'react';
-import { getBasePath, getFullPath, joinPaths, removePathPrefix } from '../core';
+import {getBasePath, getFullPath, joinPaths, QUERY_BASEPATH, QUERY_FRAGMENT, removePathPrefix} from '../core';
 
 export interface FragmentProps extends React.IframeHTMLAttributes<HTMLIFrameElement> {
     basePath: string;
@@ -9,7 +9,14 @@ export const FragmentFrame = (props: FragmentProps) => {
     const basePath = joinPaths(getBasePath(), props.basePath);
     const mainFullPath = getFullPath();
     const localPath = removePathPrefix(mainFullPath, props.topPath);
-    const src = joinPaths(basePath, localPath);
+    let src = joinPaths(basePath, localPath);
+
+    if (src.indexOf('?') === -1) {
+        src += '?';
+    } else {
+        src += '&';
+    }
+    src += `${QUERY_FRAGMENT}=true&${QUERY_BASEPATH}=${encodeURIComponent(basePath)}`;
 
     const copyProps: any = { ...props };
     delete copyProps.basePath;

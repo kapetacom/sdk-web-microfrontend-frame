@@ -1,5 +1,6 @@
 export const EVENT_HISTORY_STATE_CHANGED = 'history-state-changed';
-
+export const QUERY_FRAGMENT = '_kap_fragment';
+export const QUERY_BASEPATH = '_kap_basepath';
 
 function getBasePathForFrame(frame: Element) {
     const basePath = frame.getAttribute('data-base-path');
@@ -69,9 +70,8 @@ export function replaceStateOnWindow(win: Window, path: string) {
     try {
         const currentPath = getFullPath(win);
         if (!isSamePath(currentPath, path)) {
-            console.log('Replacing state on window: %s > %s', currentPath, path);
             // Only replace if the path has changed
-            win.history.replaceState({}, '', path);
+            win.history.replaceState({}, '', normalizePath(path));
             win.dispatchEvent(new CustomEvent(EVENT_HISTORY_STATE_CHANGED));
         }
     } catch (e) {
@@ -128,10 +128,26 @@ function syncLocationToChildFrames() {
  */
 
 function normalizePath(path: string) {
-    if (path.endsWith('/')) {
-        return path.substring(0, path.length - 1);
+    let [pathname, searchpart] = path.split('?');
+    let [search, hash] = searchpart?.split('#') || [];
+
+    if (pathname.endsWith('/')) {
+        pathname = pathname.substring(0, path.length - 1);
     }
-    return path;
+    let normalized = pathname;
+    if (search) {
+        const params = new URLSearchParams(search);
+        params.delete(QUERY_BASEPATH);
+        params.delete(QUERY_FRAGMENT);
+        search = params.toString();
+        if (search) {
+            normalized += '?' + params.toString();
+        }
+    }
+    if (hash) {
+        normalized += '#' + hash;
+    }
+    return normalized;
 }
 
 function isSamePath(path1: string, path2: string) {
@@ -218,11 +234,11 @@ export function toFullPath(urlString: string) {
     }
     const url = new URL(urlString);
     let out = url.pathname;
-    if (url.search) {
-        out += '?' + url.search;
+    if (url.search && url.search.length > 1) {
+        out += url.search;
     }
-    if (url.hash) {
-        out += '#' + url.hash;
+    if (url.hash && url.hash.length > 1) {
+        out += url.hash;
     }
     return out;
 }
