@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/kapetacom/sdk-web-microfrontend-frame/compare/v1.0.1...v1.0.2) (2023-06-20)
+
+
+### Bug Fixes
+
+* Added more elaborate url normalization ([#2](https://github.com/kapetacom/sdk-web-microfrontend-frame/issues/2)) ([2d4d23d](https://github.com/kapetacom/sdk-web-microfrontend-frame/commit/2d4d23d3b60640e92510749632761e0bf5a5f1ff))
+
 ## [1.0.1](https://github.com/kapetacom/sdk-web-microfrontend-frame/compare/v1.0.0...v1.0.1) (2023-06-20)
 
 
