@@ -1,6 +1,6 @@
-import {onParentNavigation, onSelfNavigation} from "../core";
-import {useEffect} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
+import { onParentNavigation, onSelfNavigation } from '../core';
+import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 /**
  * This component is used to sync the location of the parent and child frames.
@@ -11,12 +11,12 @@ export const LocationSync = () => {
     if (!useNavigate) {
         throw new Error('LocationSync requires react-router-dom v6 or higher');
     }
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
         //Handle parent navigation events
-        return onParentNavigation((path:string) => navigate(path, {replace: true}));
+        return onParentNavigation((path: string) => navigate(path, { replace: true }));
     }, []);
 
     useEffect(() => {
@@ -24,4 +24,4 @@ export const LocationSync = () => {
         onSelfNavigation();
     }, [location]);
     return null;
-}
+};

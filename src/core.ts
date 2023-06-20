@@ -1,9 +1,23 @@
 export const EVENT_HISTORY_STATE_CHANGED = 'history-state-changed';
+
+function getBasePathForFrame(frame: Element) {
+    const basePath = frame.getAttribute('data-base-path');
+    if (basePath) {
+        return basePath;
+    }
+    return '/';
+}
+
+/**
+ * The base path is the path that is used to resolve local paths.
+ * E.g.
+ * /my/base/<local-path>
+ */
 export function getBasePath() {
     if (window !== parent && window.frameElement) {
         // We are in iframe - get base path from iframe
         try {
-            return window.frameElement.getAttribute('data-base-path') ?? '/';
+            return getBasePathForFrame(window.frameElement);
         } catch (e) {
             //Ignore
             console.warn('Failed to get base path from frame element', e);
@@ -16,25 +30,27 @@ export function getBasePath() {
     return bases[0].getAttribute('href') || '/';
 }
 
-export function getLocalPath() {
-    if (window !== parent && window.frameElement) {
-        // We are in iframe - get base path from iframe
-        try {
-            return window.frameElement.getAttribute('data-local-path');
-        } catch (e) {
-            //Ignore
-            console.warn('Failed to get base path from frame element', e);
-        }
+function getPathInParentForFrame(frame: Element) {
+    const basePath = frame.getAttribute('data-parent-path');
+    if (basePath) {
+        return basePath;
     }
-
-    return window.location.pathname;
+    return '/';
 }
 
-export function getTopPath() {
+/**
+ * Gets the base path for this window in the parent window.
+ * E.g.
+ * /user > /fragment/user
+ * where /user is the path in the parent
+ *
+ * Used to translate paths from the parent window to the frame.
+ */
+export function getPathInParent() {
     if (window !== parent && window.frameElement) {
         // We are in iframe - get base path from iframe
         try {
-            return window.frameElement.getAttribute('data-top-path') || '/';
+            return getPathInParentForFrame(window.frameElement);
         } catch (e) {
             //Ignore
             console.warn('Failed to get base path from frame element', e);
@@ -44,14 +60,15 @@ export function getTopPath() {
     return '/';
 }
 
-export function setLocalPath(iframe:HTMLIFrameElement, path:string) {
+/**
+ * Replaces the history state of the iframe and emits and event on its window.
+ */
+export function replaceFrameHistoryState(iframe: HTMLIFrameElement, path: string) {
     if (!iframe.contentWindow) {
         return false;
     }
 
-
     try {
-        console.log('Setting local path', path);
         iframe.contentWindow.history.replaceState({}, '', path);
         iframe.contentWindow.dispatchEvent(new CustomEvent(EVENT_HISTORY_STATE_CHANGED));
     } catch (e) {
@@ -62,19 +79,21 @@ export function setLocalPath(iframe:HTMLIFrameElement, path:string) {
     return true;
 }
 
-export function onParentNavigation(callback:(localPath:string) => void) {
-
+/**
+ * The callback is invoked whenever a parent has navigated the current frame
+ */
+export function onParentNavigation(callback: (localPath: string) => void) {
     const handler = () => {
         const basePath = getBasePath();
         const fullPath = getFullPath();
         const newPath = removePathPrefix(fullPath, basePath);
         callback(newPath);
-    }
+    };
 
     window.addEventListener(EVENT_HISTORY_STATE_CHANGED, handler);
     return () => {
         window.removeEventListener(EVENT_HISTORY_STATE_CHANGED, handler);
-    }
+    };
 }
 
 function getFragmentFrame() {
@@ -82,19 +101,23 @@ function getFragmentFrame() {
     if (!elm) {
         return null;
     }
-    return elm as HTMLIFrameElement
+    return elm as HTMLIFrameElement;
 }
 
+/**
+ * This should be invoked whenever the current frame has navigated itself.
+ *
+ * Also goes for the top level window.
+ */
 export function onSelfNavigation() {
     const fullPath = getFullPath();
     const fragment = getFragmentFrame();
     if (fragment) {
-        const topPathPrefix = fragment.getAttribute('data-top-path') ?? '/';
-        const basePath = fragment.getAttribute('data-base-path') ?? '/';;
-        if (fullPath.startsWith(topPathPrefix)) {
-            const localPath = removePathPrefix(fullPath, topPathPrefix);
-            console.log('Parent is telling fragment to navigate %s > %s', topPathPrefix, basePath, localPath);
-            setLocalPath(fragment, joinPaths(basePath, localPath));
+        const parentPath = getPathInParentForFrame(fragment);
+        const basePath = getBasePathForFrame(fragment);
+        if (fullPath.startsWith(parentPath)) {
+            const localPath = removePathPrefix(fullPath, parentPath);
+            replaceFrameHistoryState(fragment, joinPaths(basePath, localPath));
         }
     }
 
@@ -102,18 +125,20 @@ export function onSelfNavigation() {
         return;
     }
     const basePath = getBasePath();
-    const topPath = getTopPath()
+    const topPath = getPathInParent();
 
     const localPath = removePathPrefix(fullPath, basePath);
     const topLocalPath = joinPaths(topPath, localPath);
     const parentFullPath = getFullPath(window.parent);
     if (parentFullPath !== topLocalPath) {
-        console.log('Frame wants to navigate to %s > %s [%s]', basePath, fullPath, localPath, topLocalPath);
         window.parent.history.replaceState({}, '', topLocalPath);
     }
 }
 
-export function joinPaths(path1:string, path2:string) {
+/**
+ * Joins two url paths together.
+ */
+export function joinPaths(path1: string, path2: string) {
     if (path2.startsWith('/')) {
         path2 = path2.substring(1);
     }
@@ -123,7 +148,10 @@ export function joinPaths(path1:string, path2:string) {
     return path1 + path2;
 }
 
-export function removePathPrefix(path:string, prefix:string) {
+/**
+ * Removes the prefix from the given path - if it exists.
+ */
+export function removePathPrefix(path: string, prefix: string) {
     if (prefix.endsWith('/')) {
         prefix = prefix.substring(0, prefix.length - 1);
     }
@@ -134,14 +162,22 @@ export function removePathPrefix(path:string, prefix:string) {
     return path;
 }
 
-export function getFullPath(win?:Window) {
+/**
+ * Gets everything after host and port for the provided window.
+ *
+ * If no window is provided, the current window is used.
+ */
+export function getFullPath(win?: Window) {
     if (!win) {
         win = window;
     }
     return toFullPath(win.location.href);
 }
 
-export function toFullPath(urlString:string) {
+/**
+ * Gets everything after host and port.
+ */
+export function toFullPath(urlString: string) {
     if (urlString.startsWith('/')) {
         return urlString;
     }
