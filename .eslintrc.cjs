@@ -14,7 +14,7 @@ module.exports = {
         '@typescript-eslint/require-await': 'off',
         '@typescript-eslint/no-inferrable-types': 'off',
         '@typescript-eslint/no-misused-promises': 'off',
-        '@typescript-eslint/no-unsafe-argument': 'off',
+        '@typescript-eslint/no-unsafe-argument': 'off'
     },
     parserOptions: {
         project: `${__dirname}/tsconfig.json`,

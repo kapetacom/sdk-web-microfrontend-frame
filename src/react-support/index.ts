@@ -1,3 +1,3 @@
-export * from './FragmentFrame';
-export * from './LocationSync';
-export * from './FrameRouter';
+export * from './FragmentFrame.js';
+export * from './LocationSync.js';
+export * from './FrameRouter.js';

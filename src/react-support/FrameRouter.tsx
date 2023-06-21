@@ -1,7 +1,7 @@
-import { getBasePath } from '../core';
 import React from 'react';
 import { BrowserRouter, BrowserRouterProps } from 'react-router-dom';
-import { LocationSync } from './LocationSync';
+import { getBasePath } from '../core.js';
+import { LocationSync } from './LocationSync.js';
 
 export interface FrameRouterProps extends Omit<BrowserRouterProps, 'basename'> {}
 /**

@@ -1,5 +1,5 @@
 import React from 'react';
-import {getBasePath, getFullPath, joinPaths, QUERY_BASEPATH, QUERY_FRAGMENT, removePathPrefix} from '../core';
+import {getBasePath, getFullPath, joinPaths, QUERY_BASEPATH, QUERY_FRAGMENT, removePathPrefix} from '../core.js';
 
 export interface FragmentProps extends React.IframeHTMLAttributes<HTMLIFrameElement> {
     basePath: string;

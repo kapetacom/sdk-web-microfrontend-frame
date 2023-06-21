@@ -1,6 +1,6 @@
-import { onParentNavigation, onSelfNavigation } from '../core';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { onParentNavigation, onSelfNavigation } from '../core.js';
 
 /**
  * This component is used to sync the location of the parent and child frames.

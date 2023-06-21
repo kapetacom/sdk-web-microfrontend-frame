@@ -1,2 +1,2 @@
-export * from './src/core';
-export * from './src/react-support/index';
+export * from './src/core.js';
+export * from './src/react-support/index.js';
