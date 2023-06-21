@@ -1,6 +1,6 @@
 {
     "name": "@kapeta/sdk-web-microfrontend-frame",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Minimalist microfrontend building blocks for web applications using iframes",
     "type": "commonjs",
     "exports": {

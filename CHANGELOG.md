@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/kapetacom/sdk-web-microfrontend-frame/compare/v1.0.2...v1.0.3) (2023-06-21)
+
+
+### Bug Fixes
+
+* Add exports to package ([20bddfe](https://github.com/kapetacom/sdk-web-microfrontend-frame/commit/20bddfeb2bf9e0bdab9f13808176aaaed18132bf))
+
 ## [1.0.2](https://github.com/kapetacom/sdk-web-microfrontend-frame/compare/v1.0.1...v1.0.2) (2023-06-20)
 
 
