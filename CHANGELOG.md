@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/kapetacom/sdk-web-microfrontend-frame/compare/v1.0.3...v1.0.4) (2023-06-21)
+
+
+### Bug Fixes
+
+* Add extensions to support ESM modules ([6b65225](https://github.com/kapetacom/sdk-web-microfrontend-frame/commit/6b652250153edef1aec22dac9ed41467da797100))
+
 ## [1.0.3](https://github.com/kapetacom/sdk-web-microfrontend-frame/compare/v1.0.2...v1.0.3) (2023-06-21)
 
 
