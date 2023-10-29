@@ -1,3 +1,8 @@
+/**
+ * Copyright 2023 Kapeta Inc.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { onParentNavigation, onSelfNavigation } from '../core.js';
