@@ -1,3 +1,8 @@
+/**
+ * Copyright 2023 Kapeta Inc.
+ * SPDX-License-Identifier: MIT
+ */
+
 export const EVENT_HISTORY_STATE_CHANGED = 'history-state-changed';
 export const QUERY_FRAGMENT = '_kap_fragment';
 export const QUERY_BASEPATH = '_kap_basepath';

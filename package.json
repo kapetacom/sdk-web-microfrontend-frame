@@ -28,8 +28,12 @@
     "keywords": [
         "kapeta"
     ],
-    "author": "Kapeta <engineering@kapeta.com>",
     "license": "MIT",
+    "author": {
+        "email": "engineering@kapeta.com",
+        "name": "Kapeta",
+        "url": "https://kapeta.com"
+    },
     "bugs": {
         "url": "https://github.com/kapetacom/sdk-web-microfrontend-frame/issues"
     },

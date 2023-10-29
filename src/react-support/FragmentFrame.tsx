@@ -1,3 +1,8 @@
+/**
+ * Copyright 2023 Kapeta Inc.
+ * SPDX-License-Identifier: MIT
+ */
+
 import React from 'react';
 import {getBasePath, getFullPath, joinPaths, QUERY_BASEPATH, QUERY_FRAGMENT, removePathPrefix} from '../core.js';
 
